@@ -22,6 +22,14 @@ from homeassistant.util.dt import utc_from_timestamp
 from .const import DOMAIN
 from .entity import OverkizDescriptiveEntity, OverkizSensorDescription
 
+OVERKIZ_BATTERY_TO_HOME_ASSISTANT = {
+    "full": 100,
+    "normal": 75,
+    "low": 25,
+    "verylow": 10,
+    "dead": 0,
+}
+
 SENSOR_DESCRIPTIONS = [
     OverkizSensorDescription(
         key="core:BatteryLevelState",
@@ -34,7 +42,8 @@ SENSOR_DESCRIPTIONS = [
         key="core:BatteryState",
         name="Battery",
         device_class=sensor.DEVICE_CLASS_BATTERY,
-        value=lambda value: str(value).capitalize(),
+        unit_of_measurement=PERCENTAGE,
+        value=lambda value: OVERKIZ_BATTERY_TO_HOME_ASSISTANT.get(value, value),
     ),
     OverkizSensorDescription(
         key="core:RSSILevelState",
