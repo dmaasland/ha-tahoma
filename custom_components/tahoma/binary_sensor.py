@@ -13,7 +13,7 @@ from .entity import OverkizBinarySensorDescription, OverkizDescriptiveEntity
 STATE_OPEN = "open"
 STATE_PERSON_INSIDE = "personInside"
 STATE_DETECTED = "detected"
-
+STATE_DEAD = "dead"
 
 BINARY_SENSOR_DESCRIPTIONS = [
     # RainSensor/RainSensor
@@ -72,6 +72,12 @@ BINARY_SENSOR_DESCRIPTIONS = [
         name="Vibration",
         device_class=binary_sensor.DEVICE_CLASS_VIBRATION,
         is_on=lambda state: state == STATE_DETECTED,
+    ),
+    OverkizBinarySensorDescription(
+        key="core:SensorDefectState",
+        name="Sensor Defect",
+        device_class=binary_sensor.DEVICE_CLASS_PROBLEM,
+        is_on=lambda state: state == STATE_DEAD,
     ),
 ]
 
