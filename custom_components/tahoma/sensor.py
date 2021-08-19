@@ -289,6 +289,20 @@ SENSOR_DESCRIPTIONS = [
         value=lambda value: str(value).capitalize(),
         entity_registry_enabled_default=False,
     ),
+    # Various covers
+    OverkizSensorDescription(
+        key="core:Memorized1PositionState",
+        name="Memorized Position",
+        entity_registry_enabled_default=False,
+        icon="mdi:content-save-cog",
+    ),
+    OverkizSensorDescription(
+        key="core:DiscreteRSSILevelState",
+        name="Discrete RSSI Level",
+        entity_registry_enabled_default=False,
+        value=lambda value: str(value).capitalize(),
+        device_class=sensor.DEVICE_CLASS_SIGNAL_STRENGTH,
+    ),
 ]
 
 
