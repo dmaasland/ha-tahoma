@@ -13,8 +13,6 @@ from .const import DOMAIN
 from .coordinator import OverkizDataUpdateCoordinator
 from .executor import OverkizExecutor
 
-ATTR_RSSI_LEVEL = "rssi_level"
-
 CORE_AVAILABILITY_STATE = "core:AvailabilityState"
 CORE_MANUFACTURER = "core:Manufacturer"
 CORE_MANUFACTURER_NAME_STATE = "core:ManufacturerNameState"
