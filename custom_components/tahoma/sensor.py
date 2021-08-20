@@ -43,7 +43,7 @@ SENSOR_DESCRIPTIONS = [
         name="Battery",
         device_class=sensor.DEVICE_CLASS_BATTERY,
         unit_of_measurement=PERCENTAGE,
-        value=lambda value: OVERKIZ_BATTERY_TO_HOME_ASSISTANT.get(value, value),
+        value=lambda value: OVERKIZ_BATTERY_TO_HA.get(value, value),
     ),
     OverkizSensorDescription(
         key="core:RSSILevelState",
