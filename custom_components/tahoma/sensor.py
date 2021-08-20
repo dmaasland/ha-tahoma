@@ -22,7 +22,7 @@ from homeassistant.util.dt import utc_from_timestamp
 from .const import DOMAIN
 from .entity import OverkizDescriptiveEntity, OverkizSensorDescription
 
-OVERKIZ_BATTERY_TO_HOME_ASSISTANT = {
+OVERKIZ_BATTERY_TO_HA = {
     "full": 100,
     "normal": 75,
     "low": 25,
