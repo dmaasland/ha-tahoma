@@ -89,13 +89,17 @@ class OverkizEntity(CoordinatorEntity):
             or self.device.widget
         )
 
+        suggested_area = None
+        if self.device.placeoid:
+            suggested_area = self.coordinator.areas[self.device.placeoid]
+
         return DeviceInfo(
             identifiers={(DOMAIN, self.executor.base_device_url)},
             name=self.device.label,
             manufacturer=manufacturer,
             model=model,
             sw_version=self.executor.select_attribute(CORE_FIRMWARE_REVISION),
-            suggested_area=self.coordinator.areas[self.device.placeoid],
+            suggested_area=suggested_area,
             via_device=self.executor.get_gateway_id(),
         )
 

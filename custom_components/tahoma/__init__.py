@@ -12,6 +12,7 @@ from homeassistant.components.sensor import DOMAIN as SENSOR
 from homeassistant.components.switch import DOMAIN as SWITCH
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import CONF_EXCLUDE, CONF_PASSWORD, CONF_SOURCE, CONF_USERNAME
+from homeassistant.const import CONF_API_TOKEN, CONF_URL
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import (
@@ -126,16 +127,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up TaHoma from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
-    username = entry.data.get(CONF_USERNAME)
-    password = entry.data.get(CONF_PASSWORD)
+    username = entry.data.get(CONF_USERNAME, '')
+    password = entry.data.get(CONF_PASSWORD, '')
+    base_url = entry.data.get(CONF_URL, '')
+    api_token = entry.data.get(CONF_API_TOKEN, '')
+    hub = entry.data.get(CONF_HUB, DEFAULT_HUB)
     server = SUPPORTED_SERVERS[entry.data.get(CONF_HUB, DEFAULT_HUB)]
+
+    server = SUPPORTED_SERVERS[hub]
+    api_url = server.endpoint
+
+    if hub == "somfy_local":
+        api_url = base_url + server.endpoint
 
     session = async_get_clientsession(hass)
     client = TahomaClient(
         username,
         password,
         session=session,
-        api_url=server.endpoint,
+        api_url=api_url,
+        api_token=api_token
     )
 
     try:
@@ -145,9 +156,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             client.get_devices(),
             client.get_scenarios(),
             client.get_gateways(),
-            client.get_places(),
         ]
-        devices, scenarios, gateways, places = await asyncio.gather(*tasks)
+
+        if hub != "somfy_local":
+            tasks.append(client.get_places())
+            devices, scenarios, gateways, places = await asyncio.gather(*tasks)
+        else:
+            devices, scenarios, gateways = await asyncio.gather(*tasks)
+            places = None
+
     except BadCredentialsException as exception:
         raise ConfigEntryAuthFailed from exception
     except TooManyRequestsException as exception:

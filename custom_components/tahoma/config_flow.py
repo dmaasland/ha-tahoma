@@ -8,6 +8,7 @@ from aiohttp import ClientError
 from homeassistant import config_entries
 from homeassistant.components.dhcp import HOSTNAME
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_URL, CONF_API_TOKEN
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import AbortFlow, FlowResult
 from homeassistant.helpers import config_validation as cv, device_registry as dr
@@ -46,17 +47,25 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Start the Overkiz config flow."""
         self._reauth_entry = None
-        self._default_username = None
+        self._default_username = ''
+        self._default_password = ''
         self._default_hub = DEFAULT_HUB
 
     async def async_validate_input(self, user_input: dict[str, Any]) -> FlowResult:
         """Validate user credentials."""
-        username = user_input.get(CONF_USERNAME)
-        password = user_input.get(CONF_PASSWORD)
+        username = user_input.get(CONF_USERNAME, '')
+        password = user_input.get(CONF_PASSWORD, '')
+        base_url = user_input.get(CONF_URL, '')
+        api_token = user_input.get(CONF_API_TOKEN, '')
+        hub = user_input.get(CONF_HUB, DEFAULT_HUB)
 
-        server = SUPPORTED_SERVERS[user_input.get(CONF_HUB, DEFAULT_HUB)]
+        server = SUPPORTED_SERVERS[hub]
+        api_url = server.endpoint
 
-        async with TahomaClient(username, password, api_url=server.endpoint) as client:
+        if hub == "somfy_local":
+            api_url = base_url + server.endpoint
+        
+        async with TahomaClient(username, password, api_url=api_url, api_token=api_token) as client:
             await client.login()
 
             # Set first gateway as unique id
@@ -113,10 +122,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_USERNAME, default=self._default_username): str,
-                    vol.Required(CONF_PASSWORD): str,
+                    vol.Required(CONF_PASSWORD, default=self._default_password): str,
                     vol.Required(CONF_HUB, default=self._default_hub): vol.In(
                         {key: hub.name for key, hub in SUPPORTED_SERVERS.items()}
                     ),
+                    vol.Required(CONF_URL): str,
+                    vol.Required(CONF_API_TOKEN): str,
                 }
             ),
             errors=errors,

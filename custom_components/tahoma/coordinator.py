@@ -63,7 +63,7 @@ class OverkizDataUpdateCoordinator(DataUpdateCoordinator):
         self.client = client
         self.devices: Dict[str, Device] = {d.deviceurl: d for d in devices}
         self.executions: Dict[str, Dict[str, str]] = {}
-        self.areas = self.places_to_area(places)
+        self.areas = self.places_to_area(places) if places else None
         self._config_entry_id = config_entry_id
 
     async def _async_update_data(self) -> Dict[str, Device]:
