@@ -169,7 +169,10 @@ class OverkizDataUpdateCoordinator(DataUpdateCoordinator):
         """Cast string value to the right type."""
         if state.type != DataType.NONE:
             caster = TYPES.get(DataType(state.type))
-            return caster(state.value)
+            try:
+                return caster(state.value)
+            except TypeError:
+                return state.value
         return state.value
 
     def places_to_area(self, place):
